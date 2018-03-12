@@ -11,10 +11,6 @@ $(document).ready(function () {
     visualizer.cameraFly();
 });
 
-// window.onload = function () {
-//     visualizer.particleAnimate();
-// }
-
 function AudioVisualizer() {
     //constants
     this.numberOfBars = 60;
@@ -40,6 +36,7 @@ function AudioVisualizer() {
 //initialize visualizer - window, lights, camera
 AudioVisualizer.prototype.initialize = function () {
     this.scene = new THREE.Scene();
+    this.scene.fog = new THREE.FogExp2( 0xFFFFFF, 0.001 );
 
     const WIDTH = window.innerWidth - 30 ;
         HEIGHT = window.innerHeight - 30 ;
@@ -119,26 +116,9 @@ AudioVisualizer.prototype.createParticles = function () {
     }
 }
 
-// AudioVisualizer.prototype.particleAnimate = function() {
-//     requestAnimationFrame(this.particleAnimate);
-//     let that = this;
-//     for (let i=0; i<this.numberOfParticles; i++) {
-//     that.particles[i].rotation.x += 0.0011;
-//     that.particles[i].rotation.y -= 0.0040;
-//     that.renderer.clear();
-
-//     that.renderer.render( visualizer.scene, visualizer.camera )
-//     }
-// }
-
 AudioVisualizer.prototype.setupAudioProcessing = function () {
     //audio context
     this.audioContext = new AudioContext();
-
-    // this.context = new AudioContext();
-    // let noiseWorker = this.context.createAudioWorker()
-    // let noiseWorker = this.audioContext.createAudioWorker()
-    // console.log('noiseWorker', noiseWorker);
 
     //create javascript node
     this.javascriptNode = this.audioContext.createScriptProcessor(2048, 1, 1);
@@ -176,7 +156,6 @@ AudioVisualizer.prototype.setupAudioProcessing = function () {
 
         const step = Math.round(array.length / visualizer.numberOfBars);
         const partSteps = Math.round(array.length / visualizer.numberOfParticles);
-
 
         for(let h=0; h<visualizer.numberOfParticles; h++) {
             let upOrDown = false;
@@ -245,11 +224,7 @@ AudioVisualizer.prototype.start = function (buffer) {
 };
 
 AudioVisualizer.prototype.stop = function () {
-    // console.log(this.sourceBuffer);
     this.audioContext.close();
-    // this.sourceBuffer.buffer.stop(0);
-    // this.audioContext = new AudioContext();
-    // this.sourceBuffer.buffer = null;
 };
 
 //set the gradient with two hex values
