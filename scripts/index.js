@@ -289,13 +289,11 @@ AudioVisualizer.prototype.cameraFly = function(event) {
         //up
         if (keyCode == 38) {
             that.camera.fov *= .99;
-            // that.camera.zoom += 0.01;
             that.camera.updateProjectionMatrix();
         }
         //down
         else if (keyCode == 40) {
             that.camera.fov *= 1.01;
-            // that.camera.zoom -= 0.01;
             that.camera.updateProjectionMatrix();
         }
     }
