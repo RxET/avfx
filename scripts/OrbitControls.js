@@ -27,8 +27,8 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.userPan = true;
 	this.userPanSpeed = 2.0;
 
-	this.autoRotate = false;
-	this.autoRotateSpeed = 1.0; // 30 seconds per round when fps is 60
+	this.autoRotate = true;
+	this.autoRotateSpeed = 2.0; // 30 seconds per round when fps is 60
 
 	this.minPolarAngle = 0; // radians
 	this.maxPolarAngle = Math.PI; // radians
@@ -128,7 +128,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 		var phi = Math.atan2( Math.sqrt( offset.x * offset.x + offset.z * offset.z ), offset.y );
 
 		if ( this.autoRotate ) {
-			this.rotateDown( getAutoRotationAngle() );
+			this.rotateLeft( getAutoRotationAngle() );
 
 		}
 
