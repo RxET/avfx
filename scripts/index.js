@@ -4,16 +4,21 @@ $(document).ready(function () {
     visualizer = new AudioVisualizer();
     visualizer.initialize();
     visualizer.createBars();
+    visualizer.createParticles();
     visualizer.setupAudioProcessing();
     visualizer.getAudio();
     visualizer.handleDrop();
     visualizer.cameraFly();
-    visualizer.handleClick();
 });
+
+// window.onload = function () {
+//     visualizer.particleAnimate();
+// }
 
 function AudioVisualizer() {
     //constants
     this.numberOfBars = 60;
+    this.numberOfParticles = 1000;
 
     //Rendering
     this.scene;
@@ -23,6 +28,7 @@ function AudioVisualizer() {
 
     //bars
     this.bars = new Array();
+    this.particles = new Array();
 
     //audio
     this.javascriptNode;
@@ -31,7 +37,7 @@ function AudioVisualizer() {
     this.analyser;
 }
 
-//initialize visualizer
+//initialize visualizer - window, lights, camera
 AudioVisualizer.prototype.initialize = function () {
     this.scene = new THREE.Scene();
 
@@ -69,10 +75,7 @@ AudioVisualizer.prototype.initialize = function () {
     const light = new THREE.SpotLight(0xffffff, 1);
     light.position.set(100, 140, 130)
 
-    // const pointLight = new THREE.PointLight(0xffffff); //white light
-    // light.position.set(-100, 200, 250);
-
-    const ambLight = new THREE.AmbientLight(0xffffff, 0.5); //white light - ambient
+    const ambLight = new THREE.AmbientLight(0xffffff, 0.5);
     light.position.set(-100, 500, 750);
 
     this.scene.add(light, ambLight);
@@ -84,7 +87,7 @@ AudioVisualizer.prototype.initialize = function () {
 AudioVisualizer.prototype.createBars = function () {
 
     for (let i = 0; i < this.numberOfBars; i++) {
-        let barGeometry = new THREE.BoxGeometry(0.01, 0.01, 0.01);
+        const barGeometry = new THREE.BoxGeometry(0.01, 0.01, 0.01);
 
         const material = new THREE.MeshPhongMaterial({
             color: this.getGradientColor(i),
@@ -98,9 +101,44 @@ AudioVisualizer.prototype.createBars = function () {
     }
 };
 
+AudioVisualizer.prototype.createParticles = function () {
+    // const particle = new THREE.Object3D();
+
+    for (let i=0; i<this.numberOfParticles; i++) {
+        const particleGeometry = new THREE.TetrahedronGeometry(2, 0);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            flatShading: true
+          });
+
+        this.particles[i] = new THREE.Mesh(particleGeometry, material);
+        this.particles[i].position.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+        this.particles[i].position.multiplyScalar(180 + (Math.random() * 250));
+        this.particles[i].rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
+        this.scene.add(this.particles[i]);
+    }
+}
+
+// AudioVisualizer.prototype.particleAnimate = function() {
+//     requestAnimationFrame(this.particleAnimate);
+//     let that = this;
+//     for (let i=0; i<this.numberOfParticles; i++) {
+//     that.particles[i].rotation.x += 0.0011;
+//     that.particles[i].rotation.y -= 0.0040;
+//     that.renderer.clear();
+
+//     that.renderer.render( visualizer.scene, visualizer.camera )
+//     }
+// }
+
 AudioVisualizer.prototype.setupAudioProcessing = function () {
     //audio context
     this.audioContext = new AudioContext();
+
+    // this.context = new AudioContext();
+    // let noiseWorker = this.context.createAudioWorker()
+    // let noiseWorker = this.audioContext.createAudioWorker()
+    // console.log('noiseWorker', noiseWorker);
 
     //create javascript node
     this.javascriptNode = this.audioContext.createScriptProcessor(2048, 1, 1);
@@ -137,6 +175,23 @@ AudioVisualizer.prototype.setupAudioProcessing = function () {
         visualizer.controls.update();
 
         const step = Math.round(array.length / visualizer.numberOfBars);
+        const partSteps = Math.round(array.length / visualizer.numberOfParticles);
+
+
+        for(let h=0; h<visualizer.numberOfParticles; h++) {
+            let upOrDown = false;
+            let value = array[h * partSteps] / 100;
+            value = value < 1 ? 1 : value;
+            //scale on heavy beats
+            visualizer.particles[h].scale.x = value
+            visualizer.particles[h].scale.y = value
+            visualizer.particles[h].scale.z = value
+
+            //constant rotation
+            visualizer.particles[h].rotation.x += 0.011
+            visualizer.particles[h].rotation.y += 0.040
+            visualizer.particles[h].rotation.z += 0.025
+        }
 
         //Iterate through bars and scale the axes
         for (let i = 0; i < visualizer.numberOfBars; i++) {
@@ -162,14 +217,14 @@ AudioVisualizer.prototype.setupAudioProcessing = function () {
 //get the default audio from the server
 AudioVisualizer.prototype.getAudio = function () {
     const request = new XMLHttpRequest();
-    request.open('GET', '../assets/ighroad.mp3', true);
+    request.open('GET', '/assets/Karaoke Mouse Shanghai Reggae DJ Sides Alternate Take.mp3', true);
     request.responseType = 'arraybuffer';
     request.send();
     let that = this;
     request.onload = function () {
         that.start(request.response);
     }
-    // $('#guide').text('Playing ' + 'highroad.mp3');
+    // $('#guide').text('Playing ' + 'Karaoke Mouse Shanghai Reggae DJ Sides Alternate Take.mp3');
 };
 
 //start the audio processing
@@ -190,7 +245,7 @@ AudioVisualizer.prototype.start = function (buffer) {
 };
 
 AudioVisualizer.prototype.stop = function () {
-    console.log(this.sourceBuffer);
+    // console.log(this.sourceBuffer);
     this.audioContext.close();
     // this.sourceBuffer.buffer.stop(0);
     // this.audioContext = new AudioContext();
@@ -226,10 +281,6 @@ AudioVisualizer.prototype.handleDrop = function () {
     document.body.addEventListener('drop', function (e) {
         e.stopPropagation();
         e.preventDefault();
-
-        // that.audioContext.close();
-        // console.log("audioContext is: ", that.audioContext);
-        // that.audioContext = new AudioContext();
 
         //get the file
         let file = e.dataTransfer.files[0];
@@ -271,39 +322,6 @@ AudioVisualizer.prototype.cameraFly = function(event) {
             that.camera.fov *= 1.01;
             // that.camera.zoom -= 0.01;
             that.camera.updateProjectionMatrix();
-        }
-    }
-}
-
-AudioVisualizer.prototype.handleClick = function(event) {
-    document.addEventListener('click', onDocumentClick, false)
-    let that = this;
-    let isClicked = false;
-
-    function onDocumentClick() {
-        if (isClicked) {
-            // that.audioContext.resume()
-            console.log('audioContext resumed')
-            isClicked = false;
-
-            // close
-            // visualizer = new AudioVisualizer();
-            // visualizer.initialize();
-            // visualizer.createBars();
-            // visualizer.setupAudioProcessing();
-            // visualizer.getAudio();
-            // that.sourceBuffer = that.audioContext.createBufferSource();
-
-
-        } else if (!isClicked) {
-            console.log('audioContext suspended')
-            // that.audioContext.suspend()
-            // that.sourceBuffer.disconnect();
-            // console.log(that.javascriptNode);
-            // that.javascriptNode.close();
-            // that.javascriptNode.disconnect(that.audioContext.destination);
-
-            isClicked = true;
         }
     }
 }
