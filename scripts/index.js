@@ -41,8 +41,8 @@ function AudioVisualizer() {
 AudioVisualizer.prototype.initialize = function () {
     this.scene = new THREE.Scene();
 
-    const WIDTH = window.innerWidth - 20 ;
-        HEIGHT = window.innerHeight - 20 ;
+    const WIDTH = window.innerWidth - 30 ;
+        HEIGHT = window.innerHeight - 30 ;
 
     //get the renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -224,7 +224,7 @@ AudioVisualizer.prototype.getAudio = function () {
     request.onload = function () {
         that.start(request.response);
     }
-    // $('#guide').text('Playing ' + 'Karaoke Mouse Shanghai Reggae DJ Sides Alternate Take.mp3');
+    $('#guide').text('Playing ' + 'Karaoke Mouse Shanghai Reggae DJ Sides Alternate Take.mp3');
 };
 
 //start the audio processing
@@ -235,7 +235,7 @@ AudioVisualizer.prototype.start = function (buffer) {
 
     function decodeAudioDataSuccess(decodedBuffer) {
         that.sourceBuffer.buffer = decodedBuffer
-        that.sourceBuffer.loop = false;
+        that.sourceBuffer.loop = true;
         that.sourceBuffer.start(0);
     }
 
