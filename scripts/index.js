@@ -217,7 +217,7 @@ AudioVisualizer.prototype.setupAudioProcessing = function () {
 //get the default audio from the server
 AudioVisualizer.prototype.getAudio = function () {
     const request = new XMLHttpRequest();
-    request.open('GET', '/assets/Karaoke-Mouse-Shanghai-Reggae-DJ-Sides-Alternate-Take.mp3', true);
+    request.open('GET', './assets/Karaoke-Mouse-Shanghai-Reggae-DJ-Sides-Alternate-Take.mp3', true);
     request.responseType = 'arraybuffer';
     request.send();
     let that = this;
